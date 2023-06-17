@@ -14,7 +14,12 @@
 <body>
     {% block content %}{% endblock %}
     <footer class="container-fluid">
-        <small>{{ layout.metadata.footer }} • Picture by <a href="https://unsplash.com/photos/5cwigXmGWTo" class="secondary">Ivan Bandura</a></small>
+         <small>
+            {{ layout.metadata.footer }}
+            {% if not layout.metadata.image %}
+                • Picture by <a href="https://unsplash.com/photos/5cwigXmGWTo" class="secondary">Ivan Bandura</a>
+            {% endif %}
+        </small>
     </footer>
 </body>
 </html>

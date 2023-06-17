@@ -25,7 +25,11 @@
                     </form>
                 {% endif %}
             </div>
-            <div style="background-image: url('{{ url_for('static', filename='photo.jpg') }}')"></div>
+            {% if layout.metadata.image %}
+                <div style="background-image: url('{{ layout.metadata.image }}')"></div>
+            {% else %}
+                <div style="background-image: url('{{ url_for('static', filename='photo.jpg') }}')"></div>
+            {% endif %}
         </article>
 
     </main>

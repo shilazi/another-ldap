@@ -139,6 +139,7 @@ def index():
     layout = {
         'metadata': {
             'title': param.get('METADATA_TITLE', 'Another LDAP', str),
+            'image': param.get('METADATA_IMAGE', '', str),
             'description': param.get('METADATA_DESCRIPTION', '', str),
             'footer': param.get('METADATA_FOOTER', 'Powered by Another LDAP', str)
         },
