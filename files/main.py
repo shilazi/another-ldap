@@ -130,6 +130,12 @@ def logout():
         session.clear()
     except KeyError:
         pass
+
+    protocol = request.args.get('protocol', default='', type=str)
+    callback = request.args.get('callback', default='', type=str)
+
+    if (protocol in ['http', 'https']) and callback:
+        return redirect(protocol + '://' + callback)
     return redirect(url_for('index'))
 
 
