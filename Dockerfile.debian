@@ -1,0 +1,54 @@
+FROM python:3.9-slim-bookworm as runtime
+
+ENV PIP_NO_CACHE_DIR=1
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Run as non-root
+ENV USER aldap
+ENV UID 10001
+ENV GROUP aldap
+ENV GID 10001
+ENV HOME /$USER
+
+RUN set -x \
+    && python3 -m venv /opt/venv \
+    && addgroup --gid $GID $GROUP \
+    && adduser --uid $UID --gid $GID \
+        --home /$USER --gecos "" --disabled-password $USER \
+    && apt-get update \
+    # runtime need this `libldap-2.5-0` package
+    && apt-get install --no-install-recommends -y -q \
+        ca-certificates libldap-2.5-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# ---------- 8< ----------
+
+FROM runtime as builder
+
+ADD files/requirements.txt .
+
+RUN set -x \
+    && apt-get update \
+    && apt-get install --no-install-recommends -y -q \
+        python3-dev libldap-dev libsasl2-dev gcc+ \
+    && pip3 install -r requirements.txt
+
+# ---------- 8< ----------
+
+FROM runtime
+
+# Serving under a subpath
+ENV SCRIPT_NAME=""
+ENV LOG_LEVEL="info"
+
+VOLUME ["/tmp"]
+
+WORKDIR $HOME
+USER $UID:$GID
+
+COPY --from=builder /opt/venv/ /opt/venv/
+
+ADD --chown=$UID:$GID files/ ./
+
+ENTRYPOINT ["gunicorn"]
