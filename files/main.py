@@ -29,10 +29,10 @@ app.config.update(
 SESSION_TYPE = 'filesystem'
 SESSION_FILE_DIR = gettempdir()
 SESSION_USE_SIGNER = True
-SESSION_COOKIE_NAME = 'another-ldap'
+SESSION_COOKIE_NAME = param.get('COOKIE_NAME', 'another-ldap')
 SESSION_COOKIE_DOMAIN = param.get('COOKIE_DOMAIN', None)
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = param.get('COOKIE_SECURE', True, bool)
 PERMANENT_SESSION_LIFETIME = timedelta(days=param.get('PERMANENT_SESSION_LIFETIME', 7, int))
 SESSION_COOKIE_SAMESITE = 'Lax'
 app.config.from_object(__name__)
@@ -183,7 +183,8 @@ def afterAll(response):
         session.clear() # Remove Session file and cookie
     response.headers['Server'] = '' # Remove Server header
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    if SESSION_COOKIE_SECURE:
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     return response
 
 
