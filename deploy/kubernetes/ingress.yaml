@@ -1,0 +1,43 @@
+# https://kubernetes.io/blog/2021/07/26/update-with-ingress-nginx/
+# https://kubernetes.github.io/ingress-nginx/user-guide/k8s-122-migration/
+#---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  namespace: another
+#  name: another-ldap
+#  annotations:
+#    # kubernetes version <= 1.21
+#    kubernetes.io/ingress.class: "nginx"
+#spec:
+#  rules:
+#  - host: aldap.example.org
+#    http:
+#      paths:
+#      - path: /
+#        pathType: Prefix
+#        backend:
+#          service:
+#            name: another-ldap
+#            port:
+#              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: another
+  name: another-ldap
+spec:
+  # kubernetes version >= 1.22
+  ingressClassName: nginx
+  rules:
+  - host: aldap.example.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: another-ldap
+            port:
+              number: 80

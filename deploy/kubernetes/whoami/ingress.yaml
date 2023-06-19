@@ -1,0 +1,61 @@
+# https://kubernetes.io/blog/2021/07/26/update-with-ingress-nginx/
+# https://kubernetes.github.io/ingress-nginx/user-guide/k8s-122-migration/
+#---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  namespace: another
+#  name: another-ldap
+#  annotations:
+#    # kubernetes version <= 1.21
+#    kubernetes.io/ingress.class: "nginx"
+#    nginx.ingress.kubernetes.io/auth-url: http://another-ldap.another.svc.cluster.local/auth
+#    nginx.ingress.kubernetes.io/server-snippet: |
+#      error_page 401 = @login;
+#      location @login {
+#        return 302 http://aldap.example.org?protocol=$pass_access_scheme&callback=$host$request_uri;
+#      }
+#      location = /logout {
+#         return 302 http://aldap.example.org/logout?protocol=$pass_access_scheme&callback=$host;
+#      }
+#spec:
+#  rules:
+#  - host: whoami.example.org
+#    http:
+#      paths:
+#      - path: /
+#        pathType: Prefix
+#        backend:
+#          service:
+#            name: another-ldap
+#            port:
+#              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: whoami
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: http://another-ldap.another.svc.cluster.local/auth
+    nginx.ingress.kubernetes.io/server-snippet: |
+      error_page 401 = @login;
+      location @login {
+        return 302 http://aldap.example.org?protocol=$pass_access_scheme&callback=$host$request_uri;
+      }
+      location = /logout {
+         return 302 http://aldap.example.org/logout?protocol=$pass_access_scheme&callback=$host;
+      }
+spec:
+  # kubernetes version >= 1.22
+  ingressClassName: nginx
+  rules:
+  - host: whoami.example.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx
+            port:
+              number: 80

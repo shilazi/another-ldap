@@ -23,6 +23,13 @@ Another LDAP provides Authentication and Authorization for your applications run
 - Brute force protection.
 - Log format in Plain-Text or JSON.
 
+## Installation For This Fork
+
+Read [Usage](./deploy/README.md) see how to deploy with [gunicorn](https://docs.gunicorn.org/en/latest/index.html) production-ready [image](https://hub.docker.com/r/shilazi/another-ldap)
+
+- [Run with Docker](./deploy/docker)
+- [Run with Kubernetes](./deploy/kubernetes)
+
 ## Installation
 - Clone this repository or download the manifests from the directory `kubernetes`.
 - Edit the ingress, config-map and secrets with your configuration.

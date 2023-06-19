@@ -1,0 +1,70 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: another-ldap
+  namespace: another
+  labels:
+    app: another-ldap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: another-ldap
+  template:
+    metadata:
+      labels:
+        app: another-ldap
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: another-ldap
+          image: docker.io/shilazi/another-ldap:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 9000
+          envFrom:
+            - configMapRef:
+                name: another-ldap
+            - secretRef:
+                name: another-ldap
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            runAsUser: 10001
+            capabilities:
+              drop:
+                - ALL
+          livenessProbe:
+            httpGet:
+              port: 9000
+              path: /
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              port: 9000
+              path: /
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+            timeoutSeconds: 1
+          volumeMounts:
+            - name: vol-tmp
+              mountPath: /tmp
+      volumes:
+        - name: vol-tmp
+          emptyDir: {}
